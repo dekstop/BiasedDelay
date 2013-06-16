@@ -15,6 +15,7 @@
 		16F03D9EB4E9A9802C0E7B9C /* juce_RTAS_MacResources.r in Rez */ = {isa = PBXBuildFile; fileRef = 9288BF099D79A60B09EE5BF7 /* juce_RTAS_MacResources.r */; };
 		1A6DF05F176DDC8800F53654 /* BiasedDelay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A6DF05E176DDC8800F53654 /* BiasedDelay.cpp */; };
 		1A90ADBCC2904090DAC57EAC /* AUCarbonViewBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52795E9CC218DF0543299AB3 /* AUCarbonViewBase.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		1AF41041176E305B00AC91B1 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 1AF41040176E305B00AC91B1 /* README */; };
 		2280E72DC849A0D5466F2701 /* juce_RTAS_DigiCode1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D980964F0ACE96B54F8DBA06 /* juce_RTAS_DigiCode1.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		29E0C945B6BC745C778ED436 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF1B66C6F3FAEF11EA214FD8 /* CoreAudio.framework */; };
 		2A78FFEA5F81A345D1EB6860 /* juce_RTAS_MacUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88F7A48255D77799285EE208 /* juce_RTAS_MacUtilities.mm */; };
@@ -174,6 +175,7 @@
 		1AAD8E6270BFA99A4C3CE81E /* juce_ResamplingAudioSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_ResamplingAudioSource.h; path = ../../JuceLibraryCode/modules/juce_audio_basics/sources/juce_ResamplingAudioSource.h; sourceTree = SOURCE_ROOT; };
 		1AEB63C859F7919CA1202A64 /* juce_LocalisedStrings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_LocalisedStrings.h; path = ../../JuceLibraryCode/modules/juce_core/text/juce_LocalisedStrings.h; sourceTree = SOURCE_ROOT; };
 		1AF2843435B8E2E4FFBC6491 /* juce_CodeEditorComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_CodeEditorComponent.cpp; path = ../../JuceLibraryCode/modules/juce_gui_extra/code_editor/juce_CodeEditorComponent.cpp; sourceTree = SOURCE_ROOT; };
+		1AF41040176E305B00AC91B1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README; path = ../../README; sourceTree = "<group>"; };
 		1B1BCBB3C7187156F3B99A2D /* juce_AttributedString.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_AttributedString.cpp; path = ../../JuceLibraryCode/modules/juce_graphics/fonts/juce_AttributedString.cpp; sourceTree = SOURCE_ROOT; };
 		1B254B9DAD643E348696D041 /* juce_UndoManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_UndoManager.cpp; path = ../../JuceLibraryCode/modules/juce_data_structures/undomanager/juce_UndoManager.cpp; sourceTree = SOURCE_ROOT; };
 		1BC858A86E70BE7F4D06B836 /* juce_linux_Midi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_linux_Midi.cpp; path = ../../JuceLibraryCode/modules/juce_audio_devices/native/juce_linux_Midi.cpp; sourceTree = SOURCE_ROOT; };
@@ -1983,6 +1985,7 @@
 		9C381AF2488BC388CFF8628D /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				1AF41040176E305B00AC91B1 /* README */,
 				B2A74C1DA997D0D625CBA98D /* BiasedDelay */,
 				7024E491776577C8EA9B739E /* Juce Modules */,
 				699E02636AA24A206EE4292C /* Juce Library Code */,
@@ -2718,6 +2721,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				61243022C73BDB6B88CA336E /* RecentFilesMenuTemplate.nib in Resources */,
+				1AF41041176E305B00AC91B1 /* README in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

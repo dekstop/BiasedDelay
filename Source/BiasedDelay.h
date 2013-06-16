@@ -19,15 +19,6 @@
  * BiasedDelay.cpp
  * BiasedDelay
  *
- * A basic delay effect with sample bias modulation.
- * This can produce great nonlinear saturation effects, however
- * its behaviour is highly dependent on the audio source.
- *
- * TODO:
- * - clear buffer tail when shortening delay time
- *   - OR: always write to full buffer, but stretch it (and adjust read/write speed)
- * - better dry/wet mixing method (don't just fade over)
- *
  * Martin Dittus 2013-06-16
  * @dekstop
  */
