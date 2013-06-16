@@ -2,6 +2,10 @@
 //  BiasedDelay.h
 //  BiasedDelay
 //
+//  A basic delay effect with sample bias modulation.
+//  This can produce great nonlinear saturation effects, however
+//  its behaviour is highly dependent on the audio source.
+//
 //  Created by mongo on 16/06/2013.
 //
 //
