@@ -1,14 +1,36 @@
-//
-//  BiasedDelay.h
-//  BiasedDelay
-//
-//  A basic delay effect with sample bias modulation.
-//  This can produce great nonlinear saturation effects, however
-//  its behaviour is highly dependent on the audio source.
-//
-//  Created by mongo on 16/06/2013.
-//
-//
+/*
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ 02110-1301, USA.
+ */
+
+/**
+ * BiasedDelay.cpp
+ * BiasedDelay
+ *
+ * A basic delay effect with sample bias modulation.
+ * This can produce great nonlinear saturation effects, however
+ * its behaviour is highly dependent on the audio source.
+ *
+ * TODO:
+ * - clear buffer tail when shortening delay time
+ *   - OR: always write to full buffer, but stretch it (and adjust read/write speed)
+ * - better dry/wet mixing method (don't just fade over)
+ *
+ * Martin Dittus 2013-06-16
+ * @dekstop
+ */
 
 #ifndef BiasedDelay_BiasedDelay_h
 #define BiasedDelay_BiasedDelay_h
