@@ -8,7 +8,7 @@ the audio source.
 TODO:
 * clear buffer tail when shortening delay time
   * OR: always write to full buffer, but stretch it (and adjust write speed)
-* better dry/wet mixing method (don't just fade over)
+* bug: sample jump at loop point
 
 Source at:
 https://github.com/dekstop/BiasedDelay

@@ -28,6 +28,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+const unsigned int MAX_CHANNELS = 4;
+
 enum ParameterId {
   PARAMETER_TIME = 0,
   PARAMETER_FEEDBACK,
@@ -41,7 +43,6 @@ const float MAX_DELAY = 4;
 const float MIN_BIAS = 0.5;
 const float MED_BIAS = 1;
 const float MAX_BIAS = 3;
-
 
 class BiasedDelay {
 public:
@@ -64,11 +65,22 @@ public:
   void setStateInformation(ScopedPointer<XmlElement> state);
 
 private:
-  void processChannelBlock(float* data, int numSamples);
+  void processChannelBlock(unsigned int channel, float* data, int numSamples);
   unsigned int getSampleDelay(float p1);
+
   float getBiasExponent(float p1);
   float applyBias(float v, float bias);
-  float linearBlend(float a, float b, float mix);
+
+  // Mixing
+  float hardLimit(float v);
+  float softLimit(float v);
+  float linearXFade(float a, float b, float mix);
+  float sigmoidXFade(float a, float b, float mix);
+  float linearTransFade(float a, float b, float mix);
+  float sigmoidTransFade(float a, float b, float mix);
+  float dryWetFade(float a, float b, float mix);
+  
+  float sigmoid(float x);
   
 private:
   StringArray parameterNames;
@@ -76,10 +88,9 @@ private:
   
   float sampleRate;
   unsigned int bufferSize;
-  float* circularBuffer;
+  float* circularBuffer[MAX_CHANNELS];
   unsigned int writeIdx;
 
 };
-
 
 #endif

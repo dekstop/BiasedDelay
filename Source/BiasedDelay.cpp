@@ -32,13 +32,20 @@ BiasedDelay::BiasedDelay(){
   parameterNames.add("Bias");
   parameterNames.add("Dry/Wet");
   
-  for (int i=0; i<4; i++)
-    setParameterValue(i, 0.0f);
+  setParameterValue(PARAMETER_TIME, 0.2f);
+  setParameterValue(PARAMETER_FEEDBACK, 0.1f);
+  setParameterValue(PARAMETER_BIAS, 0.5f);
+  setParameterValue(PARAMETER_DRYWET, 0.5f);
+  
+  memset(circularBuffer, 0, MAX_CHANNELS*sizeof(float*));
 }
 
 BiasedDelay::~BiasedDelay(){
-  if (circularBuffer!=NULL)
-    delete(circularBuffer);
+  for (int channel=0; channel<MAX_CHANNELS; channel++)
+  {
+    if (circularBuffer[channel]!=NULL)
+      delete(circularBuffer[channel]);
+  }
 }
 
 
@@ -47,17 +54,19 @@ BiasedDelay::~BiasedDelay(){
  */
 
 void BiasedDelay::prepareToPlay(double sampleRate, int samplesPerBlock){
-  if (this->sampleRate!=sampleRate){
-    if (circularBuffer!=NULL)
-      delete(circularBuffer);
+  if (this->sampleRate!=sampleRate)
+  {
+    for (int channel=0; channel<MAX_CHANNELS; channel++)
+    {
+      if (circularBuffer[channel]!=NULL)
+      {
+        delete(circularBuffer[channel]);
+        circularBuffer[channel] = NULL;
+      }
+    }
     this->sampleRate = sampleRate;
   }
-  if (circularBuffer==NULL)
-  {
-    bufferSize = MAX_DELAY * sampleRate;
-    circularBuffer = new float[bufferSize];
-    memset(circularBuffer, 0, bufferSize*sizeof(float));
-  }
+  bufferSize = MAX_DELAY * sampleRate;
   writeIdx = 0;
 }
 
@@ -65,26 +74,34 @@ void BiasedDelay::processBlock(AudioSampleBuffer& buffer, int numInputChannels,
                                int numOutputChannels, MidiBuffer& midiMessages){
   // Atm we're assuming matching input/output channel counts
   jassert(numInputChannels==numOutputChannels);
+  for (int channel=0; channel<numInputChannels; channel++)
+  {
+    if (circularBuffer[channel]==NULL)
+    {
+      circularBuffer[channel] = new float[bufferSize];
+      memset(circularBuffer[channel], 0, bufferSize*sizeof(float));
+    }
+  }
   
   for (int channel=0; channel<numInputChannels; channel++)
   {
-    processChannelBlock(buffer.getSampleData(channel), buffer.getNumSamples());
+    processChannelBlock(channel, buffer.getSampleData(channel), buffer.getNumSamples());
   }
 }
 
-void BiasedDelay::processChannelBlock(float* buf, int size){
+void BiasedDelay::processChannelBlock(unsigned int channel, float* buf, int size){
   unsigned int sampleDelay = getSampleDelay(getParameterValue(PARAMETER_TIME));
   float feedback = getParameterValue(PARAMETER_FEEDBACK);
   float bias = getBiasExponent(1 - getParameterValue(PARAMETER_BIAS));
   float dryWetMix = getParameterValue(PARAMETER_DRYWET);
   
-  for (int i=0; i<size; ++i)
+  for (int i=0; i<size; i++)
   {
-    float delaySample = circularBuffer[writeIdx];
-    float v = buf[i] + circularBuffer[writeIdx] * feedback;
+    float delaySample = circularBuffer[channel][writeIdx];
+    float v = buf[i] + delaySample * feedback;
     v = applyBias(v, bias);
-    circularBuffer[writeIdx] = fminf(1, fmaxf(-1, v)); // Guard: hard range limits.
-    buf[i] = linearBlend(buf[i], delaySample, dryWetMix);
+    circularBuffer[channel][writeIdx] = softLimit(v); // Guard: range limit.
+    buf[i] = sigmoidXFade(buf[i], delaySample, dryWetMix);
     
     writeIdx = (++writeIdx) % sampleDelay;
   }
@@ -116,9 +133,52 @@ float BiasedDelay::applyBias(float v, float bias){
     (v < 0 ? -1 : 1);    // sign
 }
 
-// Fade from a to b, over mix range [0..1]
-float BiasedDelay::linearBlend(float a, float b, float mix){
+/**
+ * Mixing.
+ */
+
+// Limits to [-1..1] range. This will distort.
+float BiasedDelay::hardLimit(float v){
+  return fminf(1, fmaxf(-1, v));
+}
+
+// Limits to [-1..1] range. A simple/crude "soft" limiter.
+float BiasedDelay::softLimit(float v){
+  return fminf(1, fmaxf(-1, v));
+}
+
+// Linear "X" crossfade from a to b, over mix range [0..1]
+float BiasedDelay::linearXFade(float a, float b, float mix){
   return a * (1 - mix) + b * mix;
+}
+
+// Sigmoidal "X" crossfade from a to b, over mix range [0..1]
+float BiasedDelay::sigmoidXFade(float a, float b, float mix){
+  return a * sigmoid(1 - mix) + b * sigmoid(mix);
+}
+
+// Linear "transition" crossfade from a to b, over mix range [0..1]
+float BiasedDelay::linearTransFade(float a, float b, float mix){
+  return a * fminf(1, 2 - 2*mix) + b * fminf(1, 2*mix);
+}
+
+// Sigmoidal "transition" crossfade from a to b, over mix range [0..1]
+float BiasedDelay::sigmoidTransFade(float a, float b, float mix){
+  return a * sigmoid(fminf(1, 2 - 2*mix)) + b * sigmoid(fminf(1, 2*mix));
+}
+
+// Mixed curve crossfade from a to b, over mix range [0..1]
+// Signal a (dry) is fading out with a sigmoidal curve
+// Signal b (wet) is fading in linearly
+// This is a compromise: it reduces the dry signal power drop but mostly avoids clipping.
+float BiasedDelay::dryWetFade(float a, float b, float mix){
+  return a * sigmoid(fminf(1, 2 - 2*mix)) + b * sigmoid(fminf(1, 2*mix));
+}
+
+// Returns a sigmoid mapping [0..1] for input values of [0..1]
+// Will limit input x to [0..1] range.
+float BiasedDelay::sigmoid(float x){
+  return sin(fminf(1, fmaxf(0, x)) * M_PI - M_PI_2) / 2 + 0.5f;
 }
 
 
