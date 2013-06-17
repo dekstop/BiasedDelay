@@ -31,6 +31,7 @@ public:
     void releaseResources();
 
     void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
+    void reset();
 
     //==============================================================================
     AudioProcessorEditor* createEditor();

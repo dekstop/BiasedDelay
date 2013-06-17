@@ -152,6 +152,13 @@ void BiasedDelayAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
   }
 }
 
+void BiasedDelayAudioProcessor::reset()
+{
+  // Use this method as the place to clear any delay lines, buffers, etc, as it
+  // means there's been a break in the audio's continuity.
+  biasedDelay.reset();
+}
+
 //==============================================================================
 bool BiasedDelayAudioProcessor::hasEditor() const
 {

@@ -28,8 +28,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-const unsigned int MAX_CHANNELS = 4;
-
 enum ParameterId {
   PARAMETER_TIME = 0,
   PARAMETER_FEEDBACK,
@@ -44,15 +42,18 @@ const float MIN_BIAS = 0.5;
 const float MED_BIAS = 1;
 const float MAX_BIAS = 3;
 
+const unsigned int MAX_CHANNELS = 4;
+const unsigned int INITIAL_BUFFER_SIZE = MAX_DELAY * 44100;
+
 class BiasedDelay {
 public:
   BiasedDelay();
-  ~BiasedDelay();
   
   // Processing
   void prepareToPlay(double sampleRate, int samplesPerBlock);
   void processBlock(AudioSampleBuffer& buffer, int numInputChannels,
                     int numOutputChannels, MidiBuffer& midiMessages);
+  void reset();
 
   // Parameters
   const float getNumParameters(){return parameterNames.size();};
@@ -65,7 +66,7 @@ public:
   void setStateInformation(ScopedPointer<XmlElement> state);
 
 private:
-  void processChannelBlock(unsigned int channel, float* data, int numSamples);
+  void processChannelBlock(int size, float* buf, float* delayBuf);
   unsigned int getSampleDelay(float p1);
 
   float getBiasExponent(float p1);
@@ -84,11 +85,10 @@ private:
   
 private:
   StringArray parameterNames;
-  float parameterValues[16];
+  float parameterValues[16] = { };
   
   float sampleRate;
-  unsigned int bufferSize;
-  float* circularBuffer[MAX_CHANNELS];
+  AudioSampleBuffer delayBuffer;
   unsigned int writeIdx;
 
 };

@@ -25,8 +25,7 @@
 
 #include "BiasedDelay.h"
 
-
-BiasedDelay::BiasedDelay(){
+BiasedDelay::BiasedDelay() : delayBuffer(MAX_CHANNELS, INITIAL_BUFFER_SIZE) {
   parameterNames.add("Time");
   parameterNames.add("Feedback");
   parameterNames.add("Bias");
@@ -36,18 +35,7 @@ BiasedDelay::BiasedDelay(){
   setParameterValue(PARAMETER_FEEDBACK, 0.1f);
   setParameterValue(PARAMETER_BIAS, 0.5f);
   setParameterValue(PARAMETER_DRYWET, 0.5f);
-  
-  memset(circularBuffer, 0, MAX_CHANNELS*sizeof(float*));
 }
-
-BiasedDelay::~BiasedDelay(){
-  for (int channel=0; channel<MAX_CHANNELS; channel++)
-  {
-    if (circularBuffer[channel]!=NULL)
-      delete(circularBuffer[channel]);
-  }
-}
-
 
 /**
  * Processing.
@@ -56,40 +44,25 @@ BiasedDelay::~BiasedDelay(){
 void BiasedDelay::prepareToPlay(double sampleRate, int samplesPerBlock){
   if (this->sampleRate!=sampleRate)
   {
-    for (int channel=0; channel<MAX_CHANNELS; channel++)
-    {
-      if (circularBuffer[channel]!=NULL)
-      {
-        delete(circularBuffer[channel]);
-        circularBuffer[channel] = NULL;
-      }
-    }
     this->sampleRate = sampleRate;
+    delayBuffer.setSize(MAX_CHANNELS, MAX_DELAY * sampleRate, true, false, true);
   }
-  bufferSize = MAX_DELAY * sampleRate;
   writeIdx = 0;
+  delayBuffer.clear();
 }
 
 void BiasedDelay::processBlock(AudioSampleBuffer& buffer, int numInputChannels,
                                int numOutputChannels, MidiBuffer& midiMessages){
   // Atm we're assuming matching input/output channel counts
   jassert(numInputChannels==numOutputChannels);
-  for (int channel=0; channel<numInputChannels; channel++)
-  {
-    if (circularBuffer[channel]==NULL)
-    {
-      circularBuffer[channel] = new float[bufferSize];
-      memset(circularBuffer[channel], 0, bufferSize*sizeof(float));
-    }
-  }
   
   for (int channel=0; channel<numInputChannels; channel++)
-  {
-    processChannelBlock(channel, buffer.getSampleData(channel), buffer.getNumSamples());
-  }
+    processChannelBlock(buffer.getNumSamples(),
+                        buffer.getSampleData(channel),
+                        delayBuffer.getSampleData(channel));
 }
 
-void BiasedDelay::processChannelBlock(unsigned int channel, float* buf, int size){
+void BiasedDelay::processChannelBlock(int size, float* buf, float* delayBuf){
   unsigned int sampleDelay = getSampleDelay(getParameterValue(PARAMETER_TIME));
   float feedback = getParameterValue(PARAMETER_FEEDBACK);
   float bias = getBiasExponent(1 - getParameterValue(PARAMETER_BIAS));
@@ -97,14 +70,18 @@ void BiasedDelay::processChannelBlock(unsigned int channel, float* buf, int size
   
   for (int i=0; i<size; i++)
   {
-    float delaySample = circularBuffer[channel][writeIdx];
+    float delaySample = delayBuf[writeIdx];
     float v = buf[i] + delaySample * feedback;
     v = applyBias(v, bias);
-    circularBuffer[channel][writeIdx] = softLimit(v); // Guard: range limit.
+    delayBuf[writeIdx] = softLimit(v); // Guard: range limit.
     buf[i] = sigmoidXFade(buf[i], delaySample, dryWetMix);
     
     writeIdx = (++writeIdx) % sampleDelay;
   }
+}
+
+void BiasedDelay::reset(){
+  delayBuffer.clear();
 }
 
 unsigned int BiasedDelay::getSampleDelay(float p1){
