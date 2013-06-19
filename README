@@ -8,7 +8,7 @@ the audio source.
 TODO:
 * clear buffer tail when shortening delay time
   * OR: always write to full buffer, but stretch it (and adjust write speed)
-* bug: sample jump at loop point, but only in stereo version. Hum.
+* ...
 
 Source at:
 https://github.com/dekstop/BiasedDelay

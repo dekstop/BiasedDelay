@@ -66,7 +66,7 @@ public:
   void setStateInformation(ScopedPointer<XmlElement> state);
 
 private:
-  void processChannelBlock(int size, float* buf, float* delayBuf);
+  void processChannelBlock(int size, float* buf, float* delayBuf, int delayBufIdx);
   unsigned int getSampleDelay(float p1);
 
   float getBiasExponent(float p1);
@@ -89,7 +89,7 @@ private:
   
   float sampleRate;
   AudioSampleBuffer delayBuffer;
-  unsigned int writeIdx;
+  unsigned int delayBufferIdx;
 
 };
 
