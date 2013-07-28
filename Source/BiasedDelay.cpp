@@ -190,9 +190,10 @@ void BiasedDelay::setParameterValue(int index, float value){
  */
 
 XmlElement BiasedDelay::getStateInformation(){
-  XmlElement state ("BiasedDelayState");
+  XmlElement state("BiasedDelayState");
   for (int i=0; i<getNumParameters(); i++)
-    state.setAttribute(getParameterName(i), getParameterValue(i));
+    state.setAttribute(String::formatted("parameter%d", i), getParameterValue(i));
+  //    state.setAttribute(getParameterName(i), getParameterValue(i));
   return state;
 }
 
@@ -200,6 +201,7 @@ void BiasedDelay::setStateInformation(ScopedPointer<XmlElement> state){
   if (state->hasTagName("BiasedDelayState"))
   {
     for (int i=0; i<getNumParameters(); i++)
-      setParameterValue(i, (float)state->getDoubleAttribute(getParameterName(i), getParameterValue(i)));
+      setParameterValue(i, (float)state->getDoubleAttribute(String::formatted("parameter%d", i), getParameterValue(i)));
+    //      setParameterValue(i, (float)state->getDoubleAttribute(getParameterName(i), getParameterValue(i)));
   }
 }

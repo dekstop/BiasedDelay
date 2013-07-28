@@ -92,7 +92,7 @@ bool BiasedDelayAudioProcessor::producesMidi() const
 
 bool BiasedDelayAudioProcessor::silenceInProducesSilenceOut() const
 {
-  return false;
+  return true;
 }
 
 double BiasedDelayAudioProcessor::getTailLengthSeconds() const
